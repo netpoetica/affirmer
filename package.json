@@ -1,0 +1,27 @@
+{
+  "name": "affirmer",
+  "version": "1.0.0",
+  "description": "Assertion testing with node's core Assertions module with visual output",
+  "license": "MIT",
+  "repository": "netpoetica/affrimer",
+  "maintainers": [
+    "Keith Rosenberg <kthrose@netpoetica.com> (http://www.netpoetica.com)"
+  ],
+  "engines": {
+    "node": ">=0.10.0"
+  },
+  "scripts": {
+    "test": "mocha"
+  },
+  "files": [
+    "index.js"
+  ],
+  "keywords": [],
+  "dependencies": {
+    "chalk": "^0.5.1",
+    "node-fullwidth-stdout": "^1.0.0"
+  },
+  "devDependencies": {
+    "mocha": "*"
+  }
+}
