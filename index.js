@@ -15,7 +15,7 @@ var themes = [
   {
     name: 'Joan',
     background: 'bgYellow',
-    log: 'gray',
+    log: 'white',
     error: 'blue'
   }
 ];
@@ -116,14 +116,60 @@ function assert(fnName, actual, expected, msg, operator){
   }
 }
 
+// Convenience helpers...
+function fail(actual, expected, message, operator){
+  assert(['fail'].concat(arguments));
+}
+function equal(actual, expected, message){
+  assert(['equal'].concat(arguments));
+}
+function notEqual(actual, expected, message){
+  assert(['notEqual'].concat(arguments));
+}
+function deepEqual(actual, expected, message){
+  assert(['deepEqual'].concat(arguments));
+}
+function notDeepEqual(actual, expected, message){
+  assert(['notDeepEqual'].concat(arguments));
+}
+function strictEqual(actual, expected, message){
+  assert(['strictEqual'].concat(arguments));
+}
+function notStrictEqual(actual, expected, message){
+  assert(['notStrictEqual'].concat(arguments));
+}
+// don't use reserved keyword "throws"
+function doesThrow(block, message){
+  assert(['throws'].concat(arguments));
+}
+function doesNotThrow(block, message){
+  assert(['doesNotThrow'].concat(arguments));
+}
+function ifError(value){
+  assert(['ifError'].concat(arguments));
+}
 
 module.exports = function(opts){
   opts = opts || {};
 
-  this.assert = assert;
   this.mute = mute;
   this.setTheme = setThemeByName;
   this.toggleColors = toggleColors;
+
+  // lib's core asset method, wrapper of node's core assert
+  this.assert = assert;
+
+  // node's api for convenience
+  this.fail = fail;
+  this.equal = equal;
+  this.notEqual = notEqual;
+  this.deepEqual = deepEqual;
+  this.notDeepEqual = notDeepEqual;
+  this.strictEqual = strictEqual;
+  this.notStrictEqual = notStrictEqual;
+  this['throws'] = doesThrow;   // Do not use 'throw' reserved word
+  this.doesNotThrow = doesNotThrow;
+  this.ifError = ifError;
 
   if(typeof opts.mute === 'boolean'){
     mute(opts.mute);
