@@ -23,14 +23,21 @@ assert('equal', typeof "hello", 'string', '"hello" should definitely be a string
 ```
 
 ### Why is there a picture of Joan of Arc?
-Because she was awesome, and I used her the colors of her Coat of Arms as the default theme for node-affirmer.
+Because she was awesome, and I used the colors of her Coat of Arms as the default theme for node-affirmer.
 
 ### Yeah, she was super duper, but I don't like that theme...
-You can change the theme back to basic (red for fail, green for pass) like so:
+You can change the theme back to basic (red for fail, green for pass) when you instantiate `affirmer`:
+```
+var Affirmer = require('../'),
+    affirmer = new Affirmer({
+      theme: 'basic'
+    });
+```
+You can also set at run-time like so:
 ```
 affirmer.setTheme('basic');
 ```
-or turn of colors altogether
+or turn of colors altogether:
 ```
 affirmer.toggleColors(false);
 ```
