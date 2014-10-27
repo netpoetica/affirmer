@@ -65,54 +65,98 @@ function log(type, msg){
  * fnName (String) - name of node's internal assert function you want to use
  * operator (String) - only used in assert.fail, shows actual + operator + expected in result.
  * */
-function assert(fnName, actual, expected, msg, operator){
+function assert(fnName, actual /* or block */, expected /* or error, message */, msg, operator){
   var method = _assert[fnName],
       bErrorThrown = false,
       result;
 
   if(typeof method !== 'function'){
     throw new Error('Invalid method passed to assert: ' + fnName);
-  }
+  } else {
+    // ifError, throws, and doesNotThrow are special cases.
+    switch(fnName){
+      case 'ifError':
+        break;
+      case 'throws':
+        // In the event of "throws", "expected" could either be a 
+        // Constructor, RegExp, or validation function.
+        // we expect an error in this case, so it's a pass.
+        if(typeof expected === 'function' || expected instanceof "object"){
+          try {
+            // This *should not* throw in order to pass
+            method(actual, expected, msg);
+          } catch(e){
+            bErrorThrown = true;
+            result = msg;
+          }
+        } else {
+          // in this case, make sure msg is properly
+          // the actual message for logging purposes.
+          msg = expected;
 
-  try {
-    method(actual, expected, msg, operator);
-  } catch(e){
-    bErrorThrown = true;
+          try {
+            method(actual, expected);
+          } catch(e){
+            bErrorThrown = true;
+            result = msg;
+          }
+        }
+        break;
+      case 'doesNotThrow':
+        // in this case, make sure msg is properly
+        // the actual message for logging purposes.
+        msg = expected;
 
-    if(operator){
-      // var expected;
+        try {
+          method(actual, expected);
+        } catch(e){
+          bErrorThrown = true;
+          result = [expected, '\t(' + e.name +')', e.message || ''].join(' ');
+        }
+        break;
+      default:
+        try {
+          method(actual, expected, msg, operator);
+        } catch(e){
+          bErrorThrown = true;
 
-      // If expected is null or undefined, it will output empty to stdout, so
-      // we must replace w/ a String. null and undefined to not have "toString()" methods.
-      switch(e.expected){
-        case null:
-          expected = "null";
-          break;
-        case undefined:
-          expected = "undefined";
-          break;
-        default:
-          expected = e.expected;
-          break;
-      }
+          if(operator){
+            // var expected;
 
-      result += [
-        e.actual,
-        e.operator,
-        expected,
-        '\t(' + e.name +')'
-      ].join(' ');
+            // If expected is null or undefined, it will output empty to stdout, so
+            // we must replace w/ a String. null and undefined to not have "toString()" methods.
+            switch(e.expected){
+              case null:
+                expected = "null";
+                break;
+              case undefined:
+                expected = "undefined";
+                break;
+              default:
+                expected = e.expected;
+                break;
+            }
 
-    } else {
-      result += e.message;
+            result = [
+              e.actual,
+              e.operator,
+              expected,
+              '\t(' + e.name +')'
+            ].join(' ');
+
+          } else {
+            result += e.message;
+          }
+        }
+        break;
     }
 
-    log('error', 'X (Fail):\t' + result);
+    if(!bErrorThrown){
+      log('log', '✓ (Pass):\t' + msg);
+    } else {
+      log('error', 'X (Fail):\t' + result);
+    }
 
-  }
-
-  if(!bErrorThrown){
-    log('log', '✓ (Pass):\t' + msg);
   }
 }
 
@@ -122,6 +166,9 @@ function fail(actual, expected, message, operator){
 }
 function equal(actual, expected, message){
   assert(['equal'].concat(arguments));
+}
+function ok(value, message){
+  equal(value, true, message);
 }
 function notEqual(actual, expected, message){
   assert(['notEqual'].concat(arguments));
@@ -160,6 +207,7 @@ module.exports = function(opts){
   this.assert = assert;
 
   // node's api for convenience
+  this.ok = ok;
   this.fail = fail;
   this.equal = equal;
   this.notEqual = notEqual;
